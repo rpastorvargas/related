@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="RANDOM_GENERATOR" type="0" description="RLAB Sample System: Produces random data for test">
+   <module name="GENERATOR MODULE" dscription="Run a module for produces random data">
+   	  <param name="simple_param" type="long" value="345">Simple param</param>
+	  <var name="max_value" type="double" initial="10" max="100" min="0" units="N/A">max random value</var>
+      <var name="min_value" type="double" initial="0" max="10" min="0" units="N/A">min random value</var>        	
+      <var name="value1" type="double" initial="0" max="100" min="0" units="N/A">random value 1</var>
+      <var name="value2" type="double" initial="0" max="100" min="0" units="N/A">random value 2</var>
+      <var name="value3" type="double" initial="0" max="100" min="0" units="N/A">random value 3</var>
+      <var name="value4" type="double" initial="0" max="100" min="0" units="N/A">random value 4</var>
+	  <var name="enteros" type="boolean" initial="false" max="true" min="false" units="N/A">Change to int values</var>
+	<implementation type="JAVA" jarfile="../examples/generador_aleatorio/code/Modulo_Generador_NumerosAletorios.jar" 
+					classname="es.uned.scc.related.modules.ejemplo.Generador">
+	</implementation>
+   </module>
+   <experiment name="Test" sampleTime="1000" logging="no" description="Test">   
+      <duration type="User" />      
+      <run module="GENERATOR MODULE">
+         <interactives names="max_value,min_value,enteros" show="true,true,true"/>
+	 <paint names="value1,value2,value3,value4" colors="blue,red,yellow,pink"/>
+      </run>  
+    </experiment>
+    <manager name="rpastor"/>
+	<student name="demo"/>
+</system>

@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" type="text/css" href="windturbine_controlpanel.css"/>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <!--ScriptSharp library-->
+    <script src="mscorlib.js" type="text/javascript"></script>
+    <!--Perfectwidgets library-->
+    <script src="PerfectWidgets.js" type="text/javascript"></script>
+    <script src="steelseries-min.js" type="text/javascript"></script>
+	<script src="tween-min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+        var battery_status_widget;
+		var indicator_widget;
+		
+		var rlab_vars = null;
+			
+		
+	
+		<!-- function callback called when receive data -->
+		function onRLABReceiveData(vars){
+			// Expected an array of vars !!!
+			if (vars!=null && vars.length>0){
+				
+				// Copy array on rlab_vars variables
+				// Sure you need after
+				rlab_vars = vars;
+				// Analyze data and use it !!!
+				if (vars != null){
+					for (i=0; i<vars.length; i++){
+						if (vars[i].name == "Lego status"){
+							if (vars[i].value == "true"){
+								indicator_widget.blink(true);	
+							} else {
+								indicator_widget.blink(false);
+							}
+						} else if (vars[i].name == "Battery Charge"){
+							v = parseFloat(vars[i].value)/100.0;
+							$("#battery_charge_text").html("Battery Charge: " + 
+										v.toFixed(2) + "%");
+							battery_status_widget.setValue(v);
+						}
+					}
+				}
+			}
+		}
+		
+		<!-- send data to experiment -->
+		function sendData(rlab_vars){
+			parent.sendDataToExperiment(rlab_vars);
+		}
+		
+		$(document).ready(function(e) {		
+			
+			
+			
+			battery_status_widget = new steelseries.Battery('canvas_battery', 
+						{
+							size: 100,
+							value: 10
+                        });
+			indicator_widget = new steelseries.Led('canvas_indicator', {
+                            width: 50,
+                            height: 50,
+							ledColor: steelseries.LedColor.GREEN 
+                          });
+        }); <!-- end document ready -->
+
+    </script>
+</head>
+<body>
+	<!--widget will be in the div below-->
+	<div id="control_panel">
+       		<div id="control_container" style="margin:10px;" class="border">
+            	<div style="text-align:center;margin:10px">Wind turbine available
+                	<div id="indicator_container">
+                    	<canvas id="canvas_indicator" width="50" height="50"></canvas>
+                    </div>
+    			</div>
+                <div id="status_container" style="text-align:center;margin:10px"">
+                	<div id="battery_charge_text">Battery charge: 0%</div>
+            		<canvas id="canvas_battery" width="200" height="100"></canvas>
+        		</div>
+            </div>
+     </div>
+	
+</body>
+</html>

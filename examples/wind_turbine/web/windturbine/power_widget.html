@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" type="text/css" href="windturbine_controlpanel.css"/>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <!--ScriptSharp library-->
+    <script src="mscorlib.js" type="text/javascript"></script>
+    <!--Perfectwidgets library-->
+    <script src="PerfectWidgets.js" type="text/javascript"></script>
+    <script src="steelseries-min.js" type="text/javascript"></script>
+	<script src="tween-min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+        var motorpower_widget;
+				
+		var changingPowerValue = false;
+		
+		var rlab_vars = null;
+			
+		
+		function changeMotorPower(value){
+			$("#motor_power_text").html("Wind motor power: " + value + "%");
+			// Now filter the rlab vars array to do the work!!!
+			var motor_var = ( $(rlab_vars).filter(function() {
+     			return this.name == 'Wind Power';
+ 			}).first())[0];
+			if (motor_var != null){
+				motor_var.value = value;
+				rlab_vars = [motor_var];
+				console.log("motor: " + motor_var);
+				sendData(rlab_vars);
+			}
+		}
+		
+		function startChangingMotorPowerValue(){
+			changingPowerValue = true;
+		}
+		
+		function stopChangingMotorPowerValue(){
+			var slider = motorpower_widget.getByName("Slider1");
+			var value = slider.getValue();
+			value = value.toFixed(2);
+			changeMotorPower(value);
+			changingPowerValue = false;
+		}
+		
+	
+		<!-- function callback called when receive data -->
+		function onRLABReceiveData(vars){
+			// Expected an array of vars !!!
+			if (vars!=null && vars.length>0){
+				
+				// Copy array on rlab_vars variables
+				// Sure you need after
+				rlab_vars = vars;
+				// Analyze data and use it !!!
+				if (vars != null){
+					for (i=0; i<vars.length; i++){
+						if (vars[i].name == "Wind Power"){
+							if (!changingPowerValue){
+								v = parseFloat(vars[i].value);
+								(motorpower_widget.getByName("Slider1")).setValue(v);	
+								$("#motor_power_text").html("Wind motor power: " +
+										v.toFixed(1) + "%");
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		<!-- send data to experiment -->
+		function sendData(rlab_vars){
+			parent.sendDataToExperiment(rlab_vars);
+		}
+		
+		$(document).ready(function(e) {		
+			
+			// Do other initialization taks							
+			$.getJSON("HorizontalSlider.json",function(json_model){
+				var params = {
+					"interactive": true
+				}
+				motorpower_widget = new PerfectWidgets.Widget(
+						"powercontrol_container", json_model,params);
+				
+				$("#powercontrol_container").mousedown(startChangingMotorPowerValue);
+				$("#powercontrol_container").mouseup(stopChangingMotorPowerValue)
+			});
+			
+        }); <!-- end document ready -->
+
+    </script>
+</head>
+<body>
+	<!--widget will be in the div below-->
+	<div id="control_panel">
+       	<div id="control_container" style="margin:10px;" class="border">
+       		<div id="motor_power_text" style="text-align:center">Wind motor power: 50%
+            </div>
+            <div id="powercontrol_container">
+       		</div>
+        </div>
+	</div>
+	
+</body>
+</html>

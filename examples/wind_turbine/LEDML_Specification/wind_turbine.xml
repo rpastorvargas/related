@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="Wind Turbine" type="0" description="Lego Laboratory representing a Wind Turbine">
+	<module name="WTModule" description="Communication with REST implemented in the module">
+		 <param name="host" type="string" value="62.204.199.219">Host running LabView model</param>
+		 <param name="port" type="int" value="8080">Port</param>
+		 <var name="Voltage In" type="double" initial="0" max="0.9" min="0" units="V">Voltage In</var>
+		 <var name="Current In" type="double" initial="0" max="0.3" min="0" units="Amp">Current In</var>
+		 <var name="Voltage Out" type="double" initial="0" max="0.9" min="0" units="V">Voltage Out</var>
+		 <var name="Current Out" type="double" initial="0" max="0.5" min="0" units="Amp">Current Out</var>
+		 <var name="Joules" type="double" initial="0" max="100" min="0" units="J">Joules</var>
+		 <var name="Watt In" type="double" initial="0" max="3.0" min="0" units="watt">Watt In</var>
+		 <var name="Watt Out" type="double" initial="0" max="4.5" min="0" units="watt">Watt Out</var>
+		 <var name="Wind Power" type="double" initial="0" max="100" min="0" units="%">Wind Power</var>
+		 <var name="Battery Charge" type="int" initial="0" max="10000" min="0" units="?">Battery Charge</var>
+		 <var name="Lego status" type="boolean" initial="false" max="1" min="0" units="?">Lego status</var>
+		 <var name="Error message" type="String" initial="" max="" min="" units="?">Lego status</var>
+		 
+		 
+		 <implementation type="JAVA" 
+                  jarfile="../examples/wind_turbine/code/WindTurbineModule.jar" 
+                  classname="es.uned.scc.rlab.modules.windturbine.WTModule">REST communication</implementation>
+	</module>
+	
+	<module name="VIDEO SERVER module">Remote image JPEG access 
+  		<param name="ExecutionTime" type="long" value="300">Thread time</param>
+		<param name="VideoServerIP" type="string" value="62.204.199.127">Video Server Location</param>
+		<param name="VideoServerPort" type="int" value="10300">Video Server Port for motor MAGLEV, 10100, (10200 for MAGLEV)</param>
+		<param name="LocalPort" type="int" value="10002">local UDP Port used to connect to video server</param>
+  		<var name="image" type="rawbytes" initial="0" max="0" min="0" units="N/A">image from Axis camera through video server</var>
+		<var name="command" type="String" initial="home" max="0" min="0" units="N/A">String command to allow PTZ and record operations</var>
+		<var name="error" type="String" initial="" max="0" min="0" units="N/A">Error from camera server</var>
+		<var name="file_chunk" type="es.uned.scc.rlab.cameraserver.file.FileChunk" units="N/A">Downloading video: one part</var>
+		<var name="recs" type="es.uned.scc.rlab.cameraserver.recordings.Recordings" units="N/A">List of recordings</var>
+        <implementation type="JAVA" 
+                  jarfile="../examples/servidor_video/code/VideoServerRLABModule.jar" 
+				  helperUrls="../examples/servidor_video/code/VideoRecordingsClassLibrary.jar"
+                  classname="es.uned.scc.rlab.modules.video.axis.VideoServerModule">Access to servo</implementation>
+    </module>
+
+<!-- Views for Java clients -->
+    <view name="ImageViewer" jarfile="../examples/servidor_video/code/ImageViewerAxis.jar" 
+	      classname="es.uned.scc.rlab.views.imageviewer.ImageViewAxis"
+		  helperUrls="../examples/servidor_video/code/CameraViewer.jar,../examples/servidor_video/code/VideoRecordingsClassLibrary.jar" 
+		  description="Show image">
+		  <param name="allowPTZ" type="boolean" value="false">Allow PTZ operations on Axis cam</param>
+		  <param name="allowRecord" type="boolean" value="false">Allow Recording...</param>
+		  <use name="image" module="VIDEO SERVER module" as="image"/>
+		  <use name="command" module="VIDEO SERVER module" as="command"/>
+		  <use name="recs" module="VIDEO SERVER module" as="recs"/>
+		  <use name="file_chunk" module="VIDEO SERVER module" as="file_chunk"/>
+		  <use name="error" module="VIDEO SERVER module" as="error"/>
+	</view>
+	
+	<view name="WindTurbineControlPanel" jarfile="../examples/wind_turbine/code/WindTurbineView.jar" 
+	      classname="es.uned.scc.rlab.views.windturbine.WindTurbineView"
+		  helperUrls="../examples/wind_turbine/code/SteelSeries-3.9.30.jar,../examples/wind_turbine/code/trident-6.3.jar" 
+		  description="Control panel with gauges for viewing wind turbine data">
+		  <use name="Voltage In" module="WTModule" as="Voltage In"/>
+		  <use name="Voltage Out" module="WTModule" as="Voltage Out"/>
+		  <use name="Current In" module="WTModule" as="Current In"/>
+		  <use name="Current Out" module="WTModule" as="Current Out"/>
+		  <use name="Watt In" module="WTModule" as="Watt In"/>
+		  <use name="Watt Out" module="WTModule" as="Watt Out"/>
+		  <use name="Joules" module="WTModule" as="Joules"/>
+		  <use name="Wind Power" module="WTModule" as="Wind Power"/>
+		  <use name="Battery Charge" module="WTModule" as="Battery Charge"/>
+		  <use name="Lego status" module="WTModule" as="Lego status"/>
+		  <use name="Error message" module="WTModule" as="Error message"/>	  
+	</view>
+
+<!-- Views for Web clients -->
+	<webview name="Web based panel" 
+	         description="Shows information about variables of Aerolian Lego" 
+	         html_dir="../examples/wind_turbine/web/windturbine/" 
+			 html_page="windturbine_controlpanel.html">
+	</webview>
+	
+	<webview name="Web Video" 
+	         description="Shows real time streaming of lab" 
+	         html_dir="../examples/wind_turbine/web/video/" 
+			 html_page="video.html">
+	</webview>
+	
+	<webview name="Status Widget" 
+	         description="Status information about lego lab" 
+	         html_dir="../examples/wind_turbine/web/windturbine/" 
+			 html_page="status_widget.html">
+	</webview>
+	
+	<webview name="Power Widget" 
+	         description="Widget used to change power of windturbine motor" 
+	         html_dir="../examples/wind_turbine/web/windturbine/" 
+			 html_page="power_widget.html">
+	</webview>
+	
+	<webview name="Voltage Widget" 
+	         description="Widget used to view values for Voltage (In,Out)" 
+	         html_dir="../examples/wind_turbine/web/windturbine/" 
+			 html_page="voltage_widget.html">
+	</webview>
+	
+	<webview name="Current Widget" 
+	         description="Widget used to view values for Currrent (In,Out)" 
+	         html_dir="../examples/wind_turbine/web/windturbine/" 
+			 html_page="current_widget.html">
+	</webview>
+	
+	<webview name="Watts Widget" 
+	         description="Widget used to view values for Watts (In,Out)" 
+	         html_dir="../examples/wind_turbine/web/windturbine/" 
+			 html_page="watts_widget.html">
+	</webview>
+	
+	<webview name="Joules Widget" 
+	         description="Widget used to view values for Joules" 
+	         html_dir="../examples/wind_turbine/web/windturbine/" 
+			 html_page="joules_widget.html">
+	</webview>
+	
+	<experiment name="Simple experiment" 
+				sampleTime="100" logging="yes" slotTime="20" concurrentUsers="1"
+			    description="Manual control of Wind Power">
+		<duration type="time" time="300"/>
+		<run module="WTModule">
+			<interactives names="Wind Power" show="true"/>
+			<paint names="Voltage In,Voltage Out" colors="black,red"/>
+			<paint names="Current In,Current Out" colors="black,red"/>
+			<paint names="Watt In,Watt Out" colors="black,red"/>
+			<paint names="Joules" colors="blue"/>
+		</run>
+		<run module="VIDEO SERVER module">This module is necessary for image viewing
+			<interactives names="command,recs,file_chunk,error" show="false,false,false,false"/>
+		</run>
+		<!-- Views for Java clients in the experiment-->
+		<open view="ImageViewer"/>
+		<open view="WindTurbineControlPanel"/>
+		<!-- Views for Web clients in the experiment-->
+		<!-- <openweb view="Web based panel"/> -->
+		<openweb view="Status Widget"/>
+		<openweb view="Power Widget"/>
+		<openweb view="Voltage Widget"/>
+		<openweb view="Current Widget"/>
+		<openweb view="Watts Widget"/>
+		<openweb view="Joules Widget"/>
+		<openweb view="Web Video"/>
+	</experiment>
+	
+	<manager name="rpastor"/>
+	<student name="demo"/>
+</system>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="Tank model" type="0" description="Simple tank model">
+	<module name="Tank" description="EJS tank model">
+		 <param name="ExecutionTime" type="long" value="100">Thread time</param>
+		 <param name="A" type="double" value="0.00785">Tank area</param>
+		 <param name="a" type="double" value="0.000314">Flow out area</param>
+		 <param name="g" type="double" value="9.82">Gravity constant</param>
+		 <param name="ku" type="double" value="0.0001">Pump constant</param>
+		 <var name="level" type="double" initial="0.2" max="0.5" min="0" units="m">Level</var>
+		 <var name="pump" type="double" initial="50" max="100" min="0" units="seconds">Pump value (0-100%)</var>
+		 <var name="qin" type="double" initial="0.0006" max="0.001" min="0" units="m3/s">In flow</var>
+		 <var name="qout" type="double" initial="0.000622" max="0.001" min="0" units="m3/s">Out flow</var>
+		 <implementation type="JAVA" 
+                  jarfile="../examples/tank_model/code/EJSSimpleTankModelModule.jar" 
+                  classname="es.uned.scc.related.modules.models.simpletank.SimpleTank">EJS simulation</implementation>
+	</module>
+	
+	<!-- Java view -->
+	<view name="Virtual Tank" jarfile="../examples/tank_model/code/TankView.jar" 
+	      classname="es.uned.scc.related.views.tank.TankEJSView"
+	      helperUrls="../examples/tank_model/code/ejs_tank_view2.jar"
+		  description="Virtual Tank developed with EJS">
+		  <param name="allow_manual" type="boolean" value="true">Allows pump changes from view</param>
+	      <use name="level" module="Tank" as="level"/>
+	      <use name="pump" module="Tank" as="pump"/>
+		  <use name="qin" module="Tank" as="Flow_in"/>
+		  <use name="qout" module="Tank" as="Flow_out"/>
+    </view>
+	
+	<!-- Javascript view -->
+	<webview name="Virtual View of Tank (Simple)" description="Shows the status of level"
+			 html_dir="../examples/tank_model/web" html_page="tank1.html"/>
+			 
+	<experiment name="Open loop model for a Tank"
+				sampleTime="100" logging="yes" slotTime="6" concurrentUsers="1"
+				description="EJS Simulation experiment">
+		<duration type="time" time="120"/>
+		
+		<!-- Define running modules for experiment -->
+		<run module="Tank">
+			<interactives names="pump" show="true"/>
+			<paint names="level" colors="black"/>
+			<paint names="qin,qout" colors="blue,red"/>
+		</run>
+		<!-- include Java views -->
+		<open view="Virtual Tank"/>
+		<!-- include Javascript views -->
+		<openweb view="Virtual View of Tank (Simple)"/>
+	</experiment>
+	<manager name="rpastor"/>
+</system>

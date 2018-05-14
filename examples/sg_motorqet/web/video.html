@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Image Viewer</title>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+</head>
+
+<body>
+
+<script>
+	var rlab_registred = false;
+	var rlab_vars = null;
+	
+	var imagesReceivedCount = 19;
+	<!-- Jquery is included, so do need to add -->
+	
+	
+	<!-- This function must be called at the document onload() event -->
+	function registerOnReceiveData(){
+		// onReceiveDataViewHandlers is a global variable 
+		// defined in the main page
+		if (onReceiveDataViewHandlers != null){
+			onReceiveDataViewHandlers.push(onRLABReceiveData);
+			rlab_registred = true;
+		}
+			
+	}
+	
+	<!-- function callback called when receive data -->
+	function onRLABReceiveData(vars){
+		// Expected an array of vars !!!
+		if (vars!=null && vars.length>0){
+			
+			// Copy array on rlab_vars variables
+			// Sure you need after
+			rlab_vars = vars;
+			
+			// Analyze data and use it !!!
+			var image_var = ( $(vars).filter(function() {
+     			return this.name == 'image';
+ 			}).first())[0];
+		
+			if (image_var !=null){
+				imagesReceivedCount++;
+				if (imagesReceivedCount>0){
+					// image_var.value is a string (array of chars)
+					var bytes = JSON.parse(image_var.value);
+					var array = new Int8Array(bytes);
+					jpeg = new Blob( [array], {type : "image/jpeg"});
+					url = URL.createObjectURL(jpeg);
+					img = document.getElementById('camera_image');
+					img.src = url;
+					imagesReceivedCount = 0;
+				}
+			}
+		}
+	}
+	
+
+	$(document).ready(function(e) {		
+		// Register the receive handler on main page
+		//registerOnReceiveData();
+		// Do other initialization taks					
+	});
+	
+	
+	function make_movement(direction){
+		if (rlab_vars!=null){
+			var command_var = ( $(rlab_vars).filter(function() {
+     			return this.name == 'command';
+ 			}).first())[0]
+			
+			command_var = "";
+			if (command_var !=null){
+				var url = "";
+				if (direction=='left'){
+					url = "http://62.204.199.217/axis-cgi/com/ptz.cgi?rpan=-5"
+				} else if (direction=='right'){
+					url = "http://62.204.199.217/axis-cgi/com/ptz.cgi?rpan=5"
+				} else if (direction=='up'){
+					url = "http://62.204.199.217/axis-cgi/com/ptz.cgi?rtilt=5"	
+				} else if (direction=='down'){
+					url = "http://62.204.199.217/axis-cgi/com/ptz.cgi?rtilt=-5"
+				} else if (direction=='zoom_in'){
+					url = "http://62.204.199.217/axis-cgi/com/ptz.cgi?rzoom=500"
+				} else if (direction=='zoom_out'){
+					url = "http://62.204.199.217/axis-cgi/com/ptz.cgi?rzoom=-500"
+				}
+				
+				if (url != ""){
+					$.get(url);
+				}
+				
+				// command_var.value = c;
+				// Lab is a global variable !!!
+				// var returned = setVarByName(lab,command_var,command_var.moduleName);
+			}
+		}
+	}
+	
+</script>
+
+<div id="main_container_camera_view">
+<div align="center">
+<img id="camera_image" src="notimage.jpg"/>
+</div>
+
+<div id="command_buttons" align="center">
+<img src="Left.png" onClick="make_movement('left')">
+<img src="Right.png" onClick="make_movement('right')">
+<img src="Up.png" onClick="make_movement('up')"> 
+<img src="Down.png" onClick="make_movement('down')">
+<img src="ZoomOut.png" onClick="make_movement('zoom_in')"/>
+<img src="ZoomIn.png"onClick="make_movement('zoom_out')"/>
+</div>
+
+</div>
+</body>
+</html>

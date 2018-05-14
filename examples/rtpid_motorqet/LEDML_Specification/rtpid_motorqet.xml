@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="RT PID with Motor QET" type="0" description="PID Controller running in a RTOS/RTJ environment with external RMI interface and connected to a real lab: motor QET">
+	<module name="RT PID module">RT PID execution module
+		 <param name="ExecutionTime" type="long" value="100">Non RT Thread time</param>
+		 <param name="host" type="String" value="10.196.95.129" >RMI Remote object for RT Thread: host ip/dns name</param>
+		 <param name="port" type="int" value="9900" >RMI Remote object for RT Thread: port valuefor RMI Registry</param>
+		 <param name="rmiName" type="String" value="PidRMIPort" >RMI Remote object for RT Thread: rmi name bound in remote host:port</param>
+		 <var name="y" type="double" initial="0" max="200" min="-200" units="rad/s">Output variable</var>
+		 <var name="u" type="double" initial="0" max="15" min="-15" units="seconds">Control variable</var>
+		 <var name="yref" type="double" initial="0" max="200" min="-200" units="rad/s">Reference variable</var>
+		 <var name="Kp" type="double" initial="0.01" max="10000" min="0" units="N/A">Proportional Gain</var> 
+		 <var name="Ti" type="double" initial="2" max="10000" min="0" units="seconds">Integral Time</var>
+		 <var name="Td" type="double" initial="0.1" max="10000" min="0" units="seconds">Derivative Time</var> 
+		 <var name="Beta" type="double" initial="1.0" max="1.0" min="0" units="N/A">Beta</var> 
+		 <var name="Tr" type="double" initial="10.0" max="10000" min="0" units="seconds">Tr</var> 
+		 <var name="N" type="double" initial="5" max="10000.0" min="0" units="N/A">N</var> 
+		 <var name="h" type="double" initial="0.01" max="10.0" min="0.01" units="ms">h</var> 
+		 <implementation type="JAVA" 
+                  jarfile="../examples/rtpid/code/RTModule.jar" 
+                  classname="es.uned.scc.related.modules.rt.RTPidControllerModule">RT PID, Java implementation</implementation>
+	</module>
+	
+	<module name="VIDEO SERVER module">Remote image JPEG access 
+  		<param name="ExecutionTime" type="long" value="500">Thread time to get an image</param>
+		<param name="VideoServerIP" type="string" value="º62.204.199.127">Video Server Location</param>
+		<param name="VideoServerPort" type="int" value="10100">Video Server Port</param>
+		<param name="LocalPort" type="int" value="11101">local UDP Port used to connect to video server</param>
+  		<var name="image" type="rawbytes" vector="no" initial="0" max="0" min="0" 
+       		units="N/A">image from Axis camera through video server</var>
+		<var name="command" type="string" vector="no" initial="no command data" max="0" min="0" 
+       		units="N/A">Command used by view to sent PTZ operations to the Axis camera</var>
+
+        <implementation type="JAVA" 
+                  jarfile="../examples/motorQET/code/VideoServerRLABModule.jar" 
+                  classname="es.uned.scc.rlab.modules.video.axis.VideoServerModule">Access to servo</implementation>
+    </module>
+	
+	<view name="MotorQETEJSViewMan" jarfile="../examples/motorQET/code/MotorQET_EJSView.jar"
+		classname="es.uned.scc.rlab.views.qetmotor.QETMotorEJSView"
+		helperUrls="../examples/motorQET/code/ejs_motorQET2.jar">Graphical view
+	      <use name="voltage" module="motorRemotoMan" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" as="command"/>
+	      <use name="speed" module="motorRemotoMan" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" as="speed"/>
+		  <use name="current" module="motorRemotoMan" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" as="current"/>
+		  <use name="position" module="motorRemotoMan" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" as="position"/>
+		  <param name="simulation" type="boolean" value="false">Enable/disable simulation</param>
+		  <param name="integratedPID" type="boolean" value="false">Internal PID value correction</param>
+	</view>
+	
+	<view name="ImageViewer" jarfile="../examples/motorQET/code/ImageViewerAxis.jar" 
+	      classname="es.uned.scc.rlab.views.imageviewer.ImageViewAxis"
+	      helperUrls="../examples/motorQET/code/CameraViewer.jar">Show image
+	      <use name="image" module="VIDEO SERVER module" as="image"/>
+	      <use name="command" module="VIDEO SERVER module" as="command"/>
+    </view>
+	
+	<!-- Views for Web clients -->
+	<webview name="Web Video" 
+	         description="Shows real time streaming of motor QET" 
+	         html_dir="../examples/motorQET/web/video/" 
+			 html_page="video.html">
+	</webview>
+	
+	<experiment name="Speed control" sampleTime="100" logging="yes">Speed control using RT PID
+		<duration type="time" time="300"/>
+		<run module="motorRemotoMan" type="remote" source="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5">  
+           <interactives names="current,tacho,position,voltage,speed,setLight" show="false,false,false,false,false,true"/>
+	 	   <paint names="voltage" colors="black"/>
+        </run>
+		<run module="RT PID module">
+		    <interactives names="yref,kp,ti,td,Beta,Tr,N" show="true,true,true,true,true,true,true"/>
+			<paint names="y,yref" colors="blue,red"/>
+			<in name="y" source="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" module="motorRemotoMan" var="speed"/>
+			<out name="u" source="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" module="motorRemotoMan" var="voltage"/>
+		</run>
+		<run module="VIDEO SERVER module"/>
+		<open view="ImageViewer" />
+		<open view="MotorQETEJSViewMan" />
+		<!-- Web client -->
+	  	<openweb view="Web Video"/>
+	</experiment>
+
+	<manager name="rpastor"/>
+</system>

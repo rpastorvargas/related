@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="VIRTUAL_LEVITATOR" type="1" description="Virtual lab for EJS Levitator">
+    <view name="VirtualLevitator" jarfile="../examples/levitator_virtual/code/VirtualLevitatorEJS.jar" 
+	      classname="es.uned.scc.rlab.views.virtual_levitator.LevitatorEJSLab"
+	      helperUrls="../examples/levitator_virtual/code/_ejslibrary.jar,../examples/levitator_virtual/code/magneticrc3.jar">Virtual Lab with EJS: Complex levitator
+    </view> 
+	<experiment name="User simulation: no time" sampleTime="1000" logging="no">View virtual lab with no specific time
+		<duration type="user"/>
+		<open view="VirtualLevitator"/>
+	</experiment>
+	<experiment name="Time based simulation" sampleTime="1000" logging="no">View virtual lab with 50 seconds time
+		<duration type="time" time="50"/>
+		<open view="VirtualLevitator"/>
+	</experiment>
+</system>

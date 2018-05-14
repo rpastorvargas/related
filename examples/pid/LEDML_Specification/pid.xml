@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="RLAB PID" type="0" description="PID System for a Tank">
+	<module name="PID module">PID execution module
+		 <param name="ExecutionTime" type="long" value="100">Thread time</param>
+		 <param name="INVERSE" type="boolean" value="false" >Inverse action</param>
+		 <var name="y" type="double" initial="0.2" max="1000" min="0" units="seconds">Output variable</var>
+		 <var name="u" type="double" initial="50" max="100" min="0" units="seconds">Control variable</var>
+		 <var name="ref" type="double" initial="0.22" max="0.8" min="0" units="m">Reference variable</var>
+		 <var name="kp" type="double" initial="850" max="10000" min="0" units="N/A">Proportional Gain</var> 
+		 <var name="ti" type="double" initial="3.5" max="10000" min="0" units="seconds">Integral Time</var>
+		 <var name="td" type="double" initial="0.8" max="10000" min="0" units="seconds">Derivative Time</var>
+		 <var name="AUTOMATIC" type="boolean" initial="true" max="-1" min="-1" units="none">Boolean var for automatic/manual switch</var> 
+		 <implementation type="JAVA" 
+                  jarfile="../examples/pid/code/PIDModule.jar" 
+                  classname="es.uned.scc.related.modules.pid.PIDModule">PID, Java implementation</implementation>
+	</module>
+	
+	<module name="Tank">EJS tank model
+		 <param name="ExecutionTime" type="long" value="100">Thread time</param>
+		 <param name="A" type="double" value="0.00785">Tank area</param>
+		 <param name="a" type="double" value="0.000314">Flow out area</param>
+		 <param name="g" type="double" value="9.82">Gravity constant</param>
+		 <param name="ku" type="double" value="0.0001">Pump constant</param>
+		 <var name="level" type="double" initial="0.2" max="0.5" min="0" units="m">Level</var>
+		 <var name="pump" type="double" initial="50" max="100" min="0" units="seconds">Pump value (0-100%)</var>
+		 <var name="qin" type="double" initial="0.0006" max="0.001" min="0" units="m3/s">In flow</var>
+		 <var name="qout" type="double" initial="0.000622" max="0.001" min="0" units="m3/s">Out flow</var>
+		 <implementation type="JAVA" 
+                  jarfile="../examples/tank_model/code/EJSSimpleTankModelModule.jar" 
+                  classname="es.uned.scc.related.modules.models.simpletank.SimpleTank">EJS simulation</implementation>
+	</module>
+	
+	<view name="Virtual Tank" jarfile="../examples/tank_model/code/TankView.jar" 
+	      classname="es.uned.scc.related.views.tank.TankEJSView"
+	      helperUrls="../examples/tank_model/code/ejs_tank_view2.jar">Virtual Tank developed with EJS
+		  <param name="allow_manual" type="boolean" value="false">Allows pump changes from view</param>
+	      <use name="level" module="Tank" as="level"/>
+	      <use name="pump" module="Tank" as="pump"/>
+		  <use name="qin" module="Tank" as="Flow_in"/>
+		  <use name="qout" module="Tank" as="Flow_out"/>
+    </view>
+	
+	<!-- Javascript view -->
+	<webview name="Virtual View of Tank (Simple)" description="Shows the status of level"
+			 html_dir="../examples/tank_model/web" html_page="tank1.html"/>
+			 
+	<experiment name="PID Sample Experiment" sampleTime="100" logging="yes">Test PID implementation changing reference ...
+		<duration type="time" time="300"/>
+		<run module="Tank">
+			<interactives names="pump" show="true"/>
+			<paint names="level" colors="black"/>
+			<paint names="qin,qout" colors="blue,red"/>
+		</run>
+		<run module="PID module">
+		    <set name="ref" time="0" value="0.22"/>
+			<interactives names="ref,kp,ti,td,AUTOMATIC" show="true,true,true,true,true"/>
+			<paint names="y,ref" colors="black,red"/>
+			<paint names="u" colors="black"/>
+			<in name="y" source="local" module="Tank" var="level"/>
+			<out name="u" source="local" module="Tank" var="pump"/>
+		</run>
+		<open view="Virtual Tank"/>
+		<!-- include Javascript views -->
+		<openweb view="Virtual View of Tank (Simple)"/>
+	</experiment>
+	<manager name="rpastor"/>
+	<student name="demo"/>
+</system>

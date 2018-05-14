@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="MAGLEV" type="0" description="MAGLEV, Quanser Magnetic Levitator">
+   <module name="PIV_MODULE">
+      <param name="TargetName" type="string" value="q_piv_maglev">QUARC Target Name (without extension)</param>
+      <param name="FilePath" type="string" value="D://users//rafa//labs//quarc_levitador//modulos_simulink">File Path to Target</param>        	
+      <var name="current" type="double" initial="0" max="3" min="0" units="I">Current applied for electomagnetic field</var>
+      <var name="position_sp" type="double" initial="0" max="3" min="0" units="mm">Position setpoint measured from MAGLEV</var>
+      <var name="position" type="double" initial="0" max="3" min="0" units="mm">Ball position</var>
+      <var name="SP_OffsetPosition" type="double" initial="0" max="9" min="-5" units="mm">Position setpoint sent to levitator</var>
+      <var name="Kff_b" type="double" initial="142.9291" max="10000" min="-10000" units="A/m">PIV Controller parameter for ball position</var>
+      <var name="Kp_b" type="double" initial="-229.0363" max="10000" min="-10000" units="A/m">PIV Controller parameter for ball position</var>
+      <var name="Ki_b" type="double" initial="-192.3205" max="10000" min="-10000" units="A/s/m">PIV Controller parameter for ball position</var>
+      <var name="Kv_b" type="double" initial="-3.7808" max="10000" min="-10000" units="A.s/m">PIV Controller parameter for ball position</var>
+      <var name="Kp_c" type="double" initial="182.875" max="10000" min="-10000" units="V/A">PI Controller parameter for current</var>
+      <var name="Ki_c" type="double" initial="24801.5625" max="100000" min="-100000" units="V/s/A">PI Controller parameter for current</var>
+      <implementation type="JAVA" 
+		jarfile="../examples/MAGLEV/code/MAGLEVClientJavaApplication.jar"
+		classname="es.uned.scc.rlab.modules.maglev.MaglevPIVModule">PIV Feedforward Controller: Ball position</implementation>
+   </module>
+   <module name="PI_MODULE">
+      <param name="TargetName" type="string" value="q_pi_maglev">QUARC Target Name (without extension)</param>
+      <param name="FilePath" type="string" value="D://users//rafa//labs//quarc_levitador//modulos_simulink">File Path to Target</param>        	
+      <var name="current" type="double" initial="0" max="3" min="0" units="A">Current applied for electomagnetic field</var>
+      <var name="voltage" type="double" initial="0" max="3" min="0" units="V">Voltage measured from MAGLEV</var>
+      <var name="position" type="double" initial="0" max="3" min="0" units="mm">Ball position</var>
+      <var name="current_sp" type="double" initial="0" max="3" min="0" units="A">Current readed setpoint from levitator (necessary for oscillator</var>
+      <var name="current_sp_command" type="double" initial="0" max="3" min="0" units="A">Current setpoint value used in no oscillator mode</var>
+      <var name="Kp_c" type="double" initial="60" max="100" min="0" units="V/A">PI Controller parameter for current</var>
+      <var name="Ki_c" type="double" initial="200" max="1000" min="0" units="V/s/A">PI Controller parameter for current</var>
+      <var name="use_oscillator" type="boolean" initial="false" max="1" min="0" units="N/A">Use oscillator in the experiment</var>
+      <implementation type="JAVA" 
+		jarfile="../examples/MAGLEV/code/MAGLEVClientJavaApplication.jar"
+		classname="es.uned.scc.rlab.modules.maglev.MaglevPIModule">PI Controller: Current</implementation>
+   </module>
+   
+   <module name="VIDEO SERVER module">Remote image JPEG access 
+  		<param name="ExecutionTime" type="long" value="500">Thread time to get an image</param>
+		<param name="VideoServerIP" type="string" value="lab-virtual.scc.uned.es">Video Server Location</param>
+		<param name="VideoServerPort" type="int" value="10200">Video Server Port</param>
+		<param name="LocalPort" type="int" value="10201">local UDP Port used to connect to video server</param>
+  		<var name="image" type="rawbytes" vector="no" initial="0" max="0" min="0" 
+       		units="N/A">image from Axis camera through video server</var>
+		<var name="command" type="string" vector="no" initial="no command data" max="0" min="0" 
+       		units="N/A">Command used by view to sent PTZ operations to the Axis camera</var>
+
+        <implementation type="JAVA" 
+                  jarfile="../examples/maglev/code/VideoServerRLABModule.jar" 
+                  classname="es.uned.scc.rlab.modules.video.axis.VideoServerModule">Access to servo</implementation>
+    </module>
+	
+	<module name="SG MODULE">Signal generator module for SINE, SQUARE and TRIANGLE modes
+      <var name="amplitude" type="double" initial="1" max="10" min="0" units="N/A">Signal amplitude</var>
+      <var name="frequency" type="double" initial="0.1" max="100" min="0" units="Hz">Signal frequency (Hz)</var>        	
+      <var name="type" type="string" initial="SINE" max="1" min="0" units="N/A">Signal type</var>
+      <var name="output" type="double" initial="0" max="10" min="-10" units="N/A">Generator Signal output</var>
+	<implementation type="JAVA" jarfile="../examples/signal_generator/code/SimpleGeneratorModule.jar" classname="es.uned.scc.rlab.modules.sample.SimpleGenerator.SimpleGeneratorModule">Module for generation signal</implementation>
+   </module>
+   
+    <view name="ImageViewer" jarfile="../examples/maglev/code/ImageViewerAxis.jar" 
+	      classname="es.uned.scc.rlab.views.imageviewer.ImageViewAxis"
+	      helperUrls="../examples/maglev/code/CameraViewer.jar">Show image
+	      <use name="image" module="VIDEO SERVER module" as="image"/>
+	      <use name="command" module="VIDEO SERVER module" as="command"/>
+    </view> 
+	
+	<view name="VirtualViewPIV" jarfile="../examples/maglev/code/MAGLEV_EJSView.jar" 
+	      classname="es.uned.scc.rlab.views.maglev.levitator.MAGLEVView"
+	      helperUrls="../examples/maglev/code/ejs_levitador.jar">EJS developed view and libraries
+	      <use name="position" module="PIV_MODULE" as="ball_height"/>
+    </view>
+
+	<view name="VirtualViewPI" jarfile="../examples/maglev/code/MAGLEV_EJSView.jar" 
+	      classname="es.uned.scc.rlab.views.maglev.levitator.MAGLEVView"
+	      helperUrls="../examples/maglev/code/ejs_levitador.jar">EJS developed view and libraries
+	      <use name="position" module="PI_MODULE" as="ball_height"/>
+    </view>
+
+   <experiment name="Ball position" sampleTime="100">Ball position controller   
+      <duration type="time" time="120" />      
+      <run module="PIV_MODULE">
+         <interactives names="SP_OffsetPosition,Kff_b,Kp_b,Ki_b,Kv_b,Kp_c,Ki_c" show="true,true,true,true,true,true,true"/>
+	 <paint names="position,position_sp" colors="yellow,red"/>
+	 <paint names="current" colors="blue"/>
+      </run>  
+      <run module="VIDEO SERVER module">
+	  <interactives names="command" show="false"/>
+      </run>
+      <open view="ImageViewer"/>
+	  <open view="VirtualViewPIV"/>
+	  
+    </experiment>
+
+   <experiment name="Current control" sampleTime="100">Current PI controller experiment   
+      <duration type="time" time="180" />      
+      <run module="PI_MODULE">
+         <interactives names="current_sp_command,Kp_c,Ki_c,use_oscillator" show="true,true,true,true,true"/>
+	 <paint names="current,current_sp" colors="yellow,red"/>
+	 <paint names="position" colors="blue"/>
+	 <paint names="voltage" colors="black"/>
+      </run>  
+      <run module="VIDEO SERVER module">
+	  <interactives names="command" show="true"/>
+      </run>
+      <open view="ImageViewer"/>
+	  <open view="VirtualViewPI"/>
+    </experiment>
+	
+	<experiment name="Ball position (generator)" sampleTime="100">Ball position controller with generator   
+      <duration type="time" time="120" />
+	  <run module="SG MODULE">
+         <interactives names="amplitude,frequency,type" show="true,true,true"/>
+	 	 <paint names="output" colors="black"/>
+      </run>
+      <run module="PIV_MODULE">
+	     <in name="SP_OffsetPosition" source="local" module="SG MODULE" var="output"/>  
+         <interactives names="Kff_b,Kp_b,Ki_b,Kv_b,Kp_c,Ki_c" show="true,true,true,true,true,true"/>
+	 	 <paint names="position,position_sp" colors="yellow,red"/>
+	 	 <paint names="current" colors="blue"/>
+      </run>  
+      <run module="VIDEO SERVER module">
+	     <interactives names="command" show="false"/>
+      </run> 
+      <open view="ImageViewer"/>
+	  <open view="VirtualViewPIV"/>
+    </experiment>
+
+    <manager name="rpastor"/>
+    <manager name="demo"/>
+</system>

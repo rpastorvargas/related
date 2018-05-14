@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="VIDEOSERVER" type="1" description="Test video server with Axis Cameras">
+	<module name="VIDEO SERVER module">Remote image JPEG access 
+  		<param name="ExecutionTime" type="long" value="300">Thread time</param>
+		<param name="VideoServerIP" type="string" value="62.204.199.127">Video Server Location</param>
+		<param name="VideoServerPort" type="int" value="10300">Video Server Port for motor MAGLEV, 10100, (10200 for MAGLEV)</param>
+		<param name="LocalPort" type="int" value="10002">local UDP Port used to connect to video server</param>
+  		<var name="image" type="rawbytes" initial="0" max="0" min="0" units="N/A">image from Axis camera through video server</var>
+		<var name="command" type="String" initial="home" max="0" min="0" units="N/A">String command to allow PTZ and record operations</var>
+		<var name="error" type="String" initial="" max="0" min="0" units="N/A">Error from camera server</var>
+		<var name="file_chunk" type="es.uned.scc.rlab.cameraserver.file.FileChunk" units="N/A">Downloading video: one part</var>
+		<var name="recs" type="es.uned.scc.rlab.cameraserver.recordings.Recordings" units="N/A">List of recordings</var>
+        <implementation type="JAVA" 
+                  jarfile="../examples/servidor_video/code/VideoServerRLABModule.jar" 
+				  helperUrls="../examples/servidor_video/code/VideoRecordingsClassLibrary.jar"
+                  classname="es.uned.scc.rlab.modules.video.axis.VideoServerModule">Access to servo</implementation>
+    </module>
+
+    <view name="ImageViewer" jarfile="../examples/servidor_video/code/ImageViewerAxis.jar" 
+	      classname="es.uned.scc.rlab.views.imageviewer.ImageViewAxis"
+		  helperUrls="../examples/servidor_video/code/CameraViewer.jar,../examples/servidor_video/code/VideoRecordingsClassLibrary.jar" 
+		  description="Show image">
+		  <param name="allowPTZ" type="boolean" value="false">Allow PTZ operations on Axis cam</param>
+		  <param name="allowRecord" type="boolean" value="false">Allow Recording...</param>
+		  <use name="image" module="VIDEO SERVER module" as="image"/>
+		  <use name="command" module="VIDEO SERVER module" as="command"/>
+		  <use name="recs" module="VIDEO SERVER module" as="recs"/>
+		  <use name="file_chunk" module="VIDEO SERVER module" as="file_chunk"/>
+		  <use name="error" module="VIDEO SERVER module" as="error"/>
+	</view> 
+	
+	<experiment name="Test video" sampleTime="500" logging="no" slotTime="10" concurrentUsers="1"
+		description="Solo se presenta la interfaz grafica durante 30 segundos">
+		<duration type="time" time="2000"/>
+		<run module="VIDEO SERVER module">This module is necessary for image viewing
+		<interactives names="command,recs,file_chunk,error" show="false,false,false,false"/>
+		</run>
+		<open view="ImageViewer"/>
+	</experiment>
+	<manager name="rpastor"/>
+	<student name="demo"/>
+
+</system>

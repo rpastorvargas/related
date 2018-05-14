@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="Rafael Pastor Vargas: Signal Generator with Motor QET Lab" type="0" description="Signal generator module for speed reference of a real lab: motor QET">
+	
+	<module name="SG MODULE">Signal generator module for SINE, SQUARE and TRIANGLE modes
+		<param name="SampleTime" type="double" value="0.01"> Sample time for signal generator thread</param>      
+		<var name="amplitude" type="double" initial="10" max="200" min="0" units="N/A">Signal amplitude</var>
+      	<var name="frequency" type="double" initial="0.1" max="1" min="0" units="Hz">Signal frequency (Hz)</var>        	
+      	<var name="wave" type="string" initial="SINE" max="1" min="0" units="N/A">Signal type</var>
+      	<var name="output" type="double" initial="0" max="200" min="-200" units="N/A">Generator Signal output</var>
+      	<var name="time" type="double" initial="0" max="3600" min="0" units="Seconds">Generator Signal generated time (1 hour maximum)</var>
+		<implementation type="JAVA" jarfile="../examples/signal_generator/code/RLABSignalGeneratorModule.jar" 
+						helperUrls="../examples/signal_generator/code/SignalModel.jar" 
+						classname="es.uned.scc.grados.appdist.related.modules.SignalGeneratorModule">Module for generation signal
+		</implementation>
+   </module>
+   
+   <module name="VIDEO SERVER module">Remote image JPEG access 
+  		<param name="ExecutionTime" type="long" value="300">Thread time</param>
+		<param name="VideoServerIP" type="string" value="62.204.199.127">Video Server Location</param>
+		<param name="VideoServerPort" type="int" value="10100">Video Server Port for motor QET 10100, (10200 for MAGLEV)</param>
+		<param name="LocalPort" type="int" value="10101">local UDP Port used to connect to video server</param>
+  		<var name="image" type="rawbytes" initial="0" max="0" min="0" units="N/A">image from Axis camera through video server</var>
+		<var name="command" type="String" initial="home" max="0" min="0" units="N/A">String command to allow PTZ and record operations</var>
+		<var name="error" type="String" initial="" max="0" min="0" units="N/A">Error from camera server</var>
+		<var name="file_chunk" type="es.uned.scc.rlab.cameraserver.file.FileChunk" units="N/A">Downloading video: one part</var>
+		<var name="recs" type="es.uned.scc.rlab.cameraserver.recordings.Recordings" units="N/A">List of recordings</var>
+        <implementation type="JAVA" 
+                  jarfile="../examples/servidor_video/code/VideoServerRLABModule.jar" 
+				  helperUrls="../examples/servidor_video/code/VideoRecordingsClassLibrary.jar"
+                  classname="es.uned.scc.rlab.modules.video.axis.VideoServerModule">Access to servo</implementation>
+    </module>
+	
+	<!-- Java view associated to the generator -->
+	<view name="SIGNAL_GENERATOR_GLGVIEW" jarfile="../examples/signal_generator_gui/code/SignalGeneratorGLGView.jar" 
+	      classname="es.uned.scc.rlab.views.signalgenerator.SignalGView"
+	      helperUrls="../examples/signal_generator_gui/code/GlgCE.jar,../examples/signal_generator_gui/code/GlgGraphLayout.jar">Show virtual view
+	      <use name="amplitude" module="SG MODULE" as="amplitude"/>
+	      <use name="frequency" module="SG MODULE" as="frequency"/>
+		  <use name="wave" module="SG MODULE" as="type"/>
+    </view>
+	
+	<!-- Java view associated to the motor -->
+	<view name="MotorQETEJSViewSpd" jarfile="../examples/sg_motorqet/code/MotorQET_EJSView.jar"
+		classname="es.uned.scc.rlab.views.qetmotor.QETMotorEJSView"
+		helperUrls="../examples/sg_motorqet/code/ejs_motorQET2.jar">Graphical view
+	      <use name="command" module="motorRemotoSpd" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" as="command"/>
+	      <use name="speed" module="motorRemotoSpd" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" as="speed"/>
+		  <use name="current" module="motorRemotoSpd" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5"  as="current"/>
+		  <use name="position" module="motorRemotoSpd" system="//62.204.199.218:1099/D71F73A7AE4E112B5DF4172E60E059E5" as="position"/>
+		  <param name="simulation" type="boolean" value="false">Enable/disable simulation</param>
+		  <param name="integratedPID" type="boolean" value="false">Internal PID value correction</param>
+	</view>
+	
+	<!-- Java view associated to the video -->
+	<view name="ImageViewer" jarfile="../examples/servidor_video/code/ImageViewerAxis.jar" 
+	      classname="es.uned.scc.rlab.views.imageviewer.ImageViewAxis"
+		  helperUrls="../examples/servidor_video/code/CameraViewer.jar,../examples/servidor_video/code/VideoRecordingsClassLibrary.jar" 
+		  description="Show image">
+		  <param name="allowPTZ" type="boolean" value="false">Allow PTZ operations on Axis cam</param>
+		  <param name="allowRecord" type="boolean" value="false">Allow Recording...</param>
+		  <use name="image" module="VIDEO SERVER module" as="image"/>
+		  <use name="command" module="VIDEO SERVER module" as="command"/>
+		  <use name="recs" module="VIDEO SERVER module" as="recs"/>
+		  <use name="file_chunk" module="VIDEO SERVER module" as="file_chunk"/>
+		  <use name="error" module="VIDEO SERVER module" as="error"/>
+	</view> 
+	
+	<webview name="Widgets panel" 
+	         description="HTML5/CSS/Javascript interface" 
+	         html_dir="../examples/signal_generator_gui/web/" 
+			 html_page="view.htm">
+	</webview>
+	
+	<webview name="Video image" 
+	         description="HTML5 interface" 
+	         html_dir="../examples/sg_motorqet/web/" 
+			 html_page="video.html">
+	</webview>
+	
+	<experiment name="Speed control with a signal generated reference" sampleTime="100" logging="no"
+			slotTime="5" concurrentUsers="1">Speed control using reference generated by signal generator module
+		<duration type="time" time="300"/>
+		<!-- Remote module reference -->
+		<run module="motorRemotoSpd" type="remote" source="//62.204.199.218:1099/87F6A41491684C0A5D5AEEB1C3CC957F">
+			<interactives names="setPoint,proportionalGain,integralGain,antiWindupGain,setPointWeight,setLight"
+						  show="true,true,true,true,true,true"/>  
+           <paint names="speed,setPoint" colors="red,blue"/>
+        </run>
+		<run module="SG MODULE">
+			<interactives names="amplitude,frequency,wave" show="true,true,true"/>
+		    <paint names="output" colors="black"/>
+			<!-- set the generated value in generator (output) as the setpoint for speed in the motor -->
+			<out name="output" source="//62.204.199.218:1099/87F6A41491684C0A5D5AEEB1C3CC957F" module="motorRemotoSpd" var="setPoint"/>
+		</run>
+		<run module="VIDEO SERVER module"/>
+		<open view="ImageViewer" />
+		<open view="MotorQETEJSViewSpd" />
+		<open view="SIGNAL_GENERATOR_GLGVIEW" />
+		<openweb view="Widgets panel" />
+		<openweb view="Video image" />
+	</experiment>
+
+	<manager name="rpastor"/>
+</system>

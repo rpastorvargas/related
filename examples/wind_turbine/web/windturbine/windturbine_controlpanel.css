@@ -1,0 +1,87 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*******************
+FONTS
+*******************/
+
+@import url(http://fonts.googleapis.com/css?family=Bree+Serif);
+
+body {
+	font-family: 'Bree Serif', serif;
+	font-weight: 300;
+	font-size: 18px;
+	line-height:34px;
+	color: #414848;
+	text-shadow: 1px 1px 0 rgba(256,256,256,1.0);
+	margin-bottom: 10px;
+}
+
+.border {
+	-moz-border-radius: 28px;
+	-webkit-border-radius: 28px;
+	border-radius: 28px;
+	/*IE 7 AND 8 DO NOT SUPPORT BORDER RADIUS*/
+	-moz-box-shadow: 0px 0px 2px #000000;
+	-webkit-box-shadow: 0px 0px 2px #000000;
+	box-shadow: 0px 0px 2px #000000;
+	/*IE 7 AND 8 DO NOT SUPPORT BLUR PROPERTY OF SHADOWS*/
+}
+
+.center{
+	margin-left: auto;
+  	margin-right: auto;
+}
+
+#north_panel{
+	-moz-border-radius: 28px;
+	-webkit-border-radius: 28px;
+	border-radius: 28px;
+	/*IE 7 AND 8 DO NOT SUPPORT BORDER RADIUS*/
+	-moz-box-shadow: 0px 0px 2px #000000;
+	-webkit-box-shadow: 0px 0px 2px #000000;
+	box-shadow: 0px 0px 2px #000000;
+	/*IE 7 AND 8 DO NOT SUPPORT BLUR PROPERTY OF SHADOWS*/
+}
+#control_panel{
+	width: 100%;
+  	margin-left: auto ;
+  	margin-right: auto ;
+}
+
+#status_container{
+}
+
+
+#powercontrol_container{
+	text-align:center;
+}
+
+#indicator_container{
+}
+
+#instruments_panel{
+	clear:both;
+	text-align:center;
+	-moz-border-radius: 28px;
+	-webkit-border-radius: 28px;
+	border-radius: 28px;
+	/*IE 7 AND 8 DO NOT SUPPORT BORDER RADIUS*/
+	-moz-box-shadow: 0px 0px 2px #000000;
+	-webkit-box-shadow: 0px 0px 2px #000000;
+	box-shadow: 0px 0px 2px #000000;
+	/*IE 7 AND 8 DO NOT SUPPORT BLUR PROPERTY OF SHADOWS*/
+}
+
+.instrument_panel{
+	display:inline-block;
+}
+
+.instrument_panel_no_inline{
+	text-align:center;
+}
+
+.instrument{
+	width:300px;
+	height:140px;
+}

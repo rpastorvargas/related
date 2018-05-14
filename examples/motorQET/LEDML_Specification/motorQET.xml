@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="MOTOR_QET" type="0">QET motor
+
+    <module name="motorRemotoMan">
+      <param name="TargetName" type="string" value="motorRemoto_man">QUARC Target Name (without extension)</param>
+      <param name="FilePath" type="string" value="D://users//labs//RLAB_Server//examples//motorQET//code">File Path to Target</param>        	
+      <var name="current" type="double" initial="0" max="10" min="-10" units="I">Current</var>
+      <var name="tacho" type="double" initial="0" max="200" min="-200" units="rad/s">Tachometer sensor</var>
+      <var name="position" type="double" initial="0" max="10000" min="-10000" units="lines">Encoder value (position)</var>
+      <var name="voltage" type="double" initial="0" max="15" min="-15" units="V">Motor voltage</var>
+      <var name="speed" type="double" initial="0" max="200" min="-200" units="rad/s">Velocidad</var>
+      <var name="setLight" type="boolean" initial="true" max="true" min="false" units="">Activación/Desactivación iluminación</var>
+	  
+	<implementation type="JAVA" 
+		jarfile="../examples/motorQET/code/motorRemotoMan.jar"
+		classname="es.uned.scc.rlab.modules.qet.QETManModule">Run the position module, to learn PID control</implementation>
+   </module>
+
+   <module name="motorRemotoPos">
+      <param name="TargetName" type="string" value="motorRemoto_pos">QUARC Target Name (without extension)</param>
+      <param name="FilePath" type="string" value="D://users//labs//RLAB_Server//examples//motorQET//code">File Path to Target</param>        	
+      <var name="current" type="double" initial="0" max="10" min="-10" units="I">Current</var>
+      <var name="tacho" type="double" initial="0" max="200" min="-200" units="rad/s">Tachometer sensor</var>
+      <var name="position" type="double" initial="0" max="10000" min="-10000" units="lines">Encoder value (position)</var>
+      	  
+	  <var name="setPoint" type="double" initial="0" max="0" min="10" units="rad">Desired Set Point</var>
+	  <var name="command" type="double" initial="0" max="15" min="-15" units="V">Control action</var>
+	  <var name="speed" type="double" initial="0" max="200" min="-200" units="rad/s">Velocidad</var>
+	  <var name="integralGain" type="double" initial="0" max="500" min="-500" units=" ">Ganancia integral</var>
+	  <var name="derivativeGain" type="double" initial="0" max="500" min="-500" units=" ">Ganancia derivativa</var>
+	  <var name="proportionalGain" type="double" initial="0" max="500" min="-500" units=" ">Ganancia proporcional</var>
+	  <var name="derivativeSetPointWeight" type="double" initial="0" max="500" min="-500" units=" ">Ponderación punto de consigna derivativo</var>
+	  <var name="proportionalSetPointWeight" type="double" initial="0" max="500" min="-500" units=" ">Ponderación punto de consigna proporcional</var>
+	  <var name="amplitude" type="double" initial="0" max="500" min="-500" units="rad">Amplitud del generador</var>
+	  <var name="Offset" type="double" initial="0" max="500" min="-500" units="rad">Offset del generador</var>
+	  <var name="setLight" type="boolean" initial="true" max="true" min="false" units="">Activación/Desactivación iluminación</var>
+	  
+	<implementation type="JAVA" 
+		jarfile="../examples/motorQET/code/motorRemotoPos.jar"
+		classname="es.uned.scc.rlab.modules.qet.QETPosModule">Run the position module, to learn PID control</implementation>
+   </module>
+  
+   <module name="motorRemotoSpd">
+		<param name="TargetName" type="string" value="motorRemoto_spd">QUARC Target Name (without extension)</param>
+		<param name="FilePath" type="string" value="D://users//labs//RLAB_Server//examples//motorQET//code">File Path to Target</param>
+		
+		<var name="current" type="double" initial="0" max="10" min="-10" units="I">Current</var>
+		<var name="tacho" type="double" initial="0" max="200" min="-200" units="V">Tachometer sensor</var>
+		<var name="position" type="double" initial="0" max="10000" min="-10000" units="lines">Encoder value (position)</var>
+		
+		<var name="setPoint" type="double" initial="0" max="200" min="-200" units="rad">Desired Set Point</var>
+		<var name="command" type="double" initial="0" max="15" min="-15" units="V">Control action</var>
+		<var name="speed" type="double" initial="0" max="200" min="-200" units="rad/s">Velocidad</var>
+		<var name="integralGain" type="double" initial="0" max="500" min="-500" units=" ">Integral Gain</var>
+		<var name="proportionalGain" type="double" initial="0" max="500" min="-500" units=" ">Proportional Gain</var>
+		<var name="antiWindupGain" type="double" initial="0" max="500" min="-500" units=" ">Anti WindUP Gain</var>
+		<var name="setPointWeight" type="double" initial="0" max="500" min="-500" units=" ">Proportional Set Point Weight</var>
+		<var name="setLight" type="boolean" initial="true" max="true" min="false" units=" ">Light On/Off</var>
+		
+		<implementation type="JAVA"
+		jarfile="../examples/motorQET/code/motorRemotoSpd.jar"
+		classname="es.uned.scc.rlab.modules.qet.QETSpdModule">Run the speed module, to learn PI control</implementation>
+   </module>
+   
+   <module name="VIDEO SERVER module">Remote image JPEG access 
+  		<param name="ExecutionTime" type="long" value="500">Thread time to get an image</param>
+		<param name="VideoServerIP" type="string" value="62.204.199.127">Video Server Location</param>
+		<param name="VideoServerPort" type="int" value="10100">Video Server Port</param>
+		<param name="LocalPort" type="int" value="10101">local UDP Port used to connect to video server</param>
+  		<var name="image" type="rawbytes" vector="no" initial="0" max="0" min="0" 
+       		units="N/A">image from Axis camera through video server</var>
+		<var name="command" type="string" vector="no" initial="no command data" max="0" min="0" 
+       		units="N/A">Command used by view to sent PTZ operations to the Axis camera</var>
+
+        <implementation type="JAVA" 
+                  jarfile="../examples/motorQET/code/VideoServerRLABModule.jar" 
+                  classname="es.uned.scc.rlab.modules.video.axis.VideoServerModule">Access to servo</implementation>
+    </module>
+
+<!-- Views for Java clients -->
+    <view name="ImageViewer" jarfile="../examples/motorQET/code/ImageViewerAxis.jar" 
+	      classname="es.uned.scc.rlab.views.imageviewer.ImageViewAxis"
+	      helperUrls="../examples/motorQET/code/CameraViewer.jar">Show image
+	      <use name="image" module="VIDEO SERVER module" as="image"/>
+	      <use name="command" module="VIDEO SERVER module" as="command"/>
+    </view> 
+	
+	
+	<view name="MotorQETEJSViewPos" jarfile="../examples/motorQET/code/MotorQET_EJSView.jar"
+		classname="es.uned.scc.rlab.views.qetmotor.QETMotorEJSView"
+		helperUrls="../examples/motorQET/code/ejs_motorQET2.jar">Graphical view
+	      <use name="command" module="motorRemotoPos" as="command"/>
+	      <use name="speed" module="motorRemotoPos" as="speed"/>
+		  <use name="current" module="motorRemotoPos" as="current"/>
+		  <use name="position" module="motorRemotoPos" as="position"/>
+		  <param name="simulation" type="boolean" value="false">Enable/disable simulation</param>
+		 
+	</view>
+    
+	<view name="MotorQETEJSViewSpd" jarfile="../examples/motorQET/code/MotorQET_EJSView.jar"
+		classname="es.uned.scc.rlab.views.qetmotor.QETMotorEJSView"
+		helperUrls="../examples/motorQET/code/ejs_motorQET2.jar">Graphical view
+	      <use name="command" module="motorRemotoSpd" as="command"/>
+	      <use name="speed" module="motorRemotoSpd" as="speed"/>
+		  <use name="current" module="motorRemotoSpd" as="current"/>
+		  <use name="position" module="motorRemotoSpd" as="position"/>
+		  <param name="simulation" type="boolean" value="false">Enable/disable simulation</param>
+	</view>
+	
+
+	<view name="MotorQETEJSViewMan" jarfile="../examples/motorQET/code/MotorQET_EJSView.jar"
+		classname="es.uned.scc.rlab.views.qetmotor.QETMotorEJSView"
+		helperUrls="../examples/motorQET/code/ejs_motorQET2.jar">Graphical view
+	      <use name="voltage" module="motorRemotoMan" as="command"/>
+	      <use name="speed" module="motorRemotoMan" as="speed"/>
+		  <use name="current" module="motorRemotoMan" as="current"/>
+		  <use name="position" module="motorRemotoMan" as="position"/>
+		  <param name="simulation" type="boolean" value="false">Enable/disable simulation</param>
+	</view>
+
+	<view name="MotorQETEJSViewSpdSim" jarfile="../examples/motorQET/code/MotorQET_EJSView.jar"
+		classname="es.uned.scc.rlab.views.qetmotor.QETMotorEJSView"
+		helperUrls="../examples/motorQET/code/ejs_motorQET2.jar">Graphical view
+	      <use name="command" module="motorRemotoSpd" as="command"/>
+	      <use name="speed" module="motorRemotoSpd" as="speed"/>
+		  <use name="current" module="motorRemotoSpd" as="current"/>
+		  <use name="position" module="motorRemotoSpd" as="position"/>
+		  <param name="simulation" type="boolean" value="true">Enable/disable simulation</param>
+	</view>
+
+<!-- Views for Web clients -->
+	
+	<webview name="Web Video" 
+	         description="Shows real time streaming of motor QET" 
+	         html_dir="../examples/motorQET/web/video/" 
+			 html_page="video.html">
+	</webview>
+	
+	<webview name="Virtual motor" 
+	         description="Shows data from motor inside a virtual panel" 
+	         html_dir="../examples/motorQET/web/virtual_motor/" 
+			 html_page="motorQET.html">
+	</webview>
+	
+   <experiment name="Control PID Posicion" sampleTime="100" logging="yes">Control PID Posición   
+      <duration type="User" />      
+      <run module="motorRemotoPos">
+         <interactives names="amplitude,Offset,integralGain,derivativeGain,proportionalGain,derivativeSetPointWeight,proportionalSetPointWeight,setLight" 
+		 show="true,true,true,true,true,true,true,true"/>
+	 	 <paint names="position" colors="red"/>
+		 <paint names="speed" colors="blue"/>
+		 <paint names="current" colors="red"/>
+		 
+      </run>  
+      <run module="VIDEO SERVER module">
+	  <interactives names="command" show="false"/>
+      </run>
+	  <!-- Java client -->
+      <open view="ImageViewer"/>
+      <open view="MotorQETEJSViewPos"/>
+	  <!-- Web client -->
+	  <openweb view="Web Video"/>
+    </experiment>
+	
+	<experiment name="Control PI Velocidad" sampleTime="100" logging="yes">Control PI Velocidad
+		<duration type="User" />
+		<run module="motorRemotoSpd">
+			<interactives names="setPoint,proportionalGain,integralGain,antiWindupGain,setPointWeight,setLight"
+			show="true,true,true,true,true,true"/>
+	 	 <paint names="speed,setPoint" colors="red,yellow"/>
+		  <paint names="position" colors="blue"/>
+		</run>
+		<run module="VIDEO SERVER module">
+		<interactives names="command" show="false"/>
+		</run>
+		<!-- Java client -->
+		<open view="ImageViewer" />
+		<open view="MotorQETEJSViewSpd" />
+		<!-- Web client -->
+	  	<openweb view="Web Video"/>
+		<openweb view="Virtual motor"/>
+	</experiment>
+	
+	<experiment name="Simulacion control PI Velocidad" sampleTime="100" logging="yes">Control PI Velocidad
+		<duration type="User" />
+		<!-- Java client -->
+		<open view="MotorQETEJSViewSpdSim" />
+	</experiment>
+
+    <experiment name="Manual module" sampleTime="100" logging="yes">Control PI Velocidad
+		<duration type="User" />
+		<run module="motorRemotoMan">
+			<interactives names="voltage,setLight"
+			show="true,true"/>
+	 	  <paint names="speed" colors="red"/>
+		  <paint names="voltage" colors="red"/>
+		  <paint names="position" colors="blue"/>
+		</run>
+		<run module="VIDEO SERVER module">
+	
+		</run>
+		<!-- Java client -->
+		<open view="ImageViewer" />
+		<open view="MotorQETEJSViewMan" />
+		<!-- Web client -->
+	  	<openweb view="Web Video"/>
+	</experiment>
+	<manager name="rpastor" />
+</system>

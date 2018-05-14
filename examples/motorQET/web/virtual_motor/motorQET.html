@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet"  type="text/css" href="ejsSimulation.css" />
+    <script src="common_script.js"></script>
+    <script src="textresizedetector.js"></script>
+    <script src="ejsS.v1.min.js"></script>
+  </head>
+  <body>
+    
+	<div id="_topFrame" style="text-align:center"></div>
+	<script src="motorQET.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type="text/javascript">
+	
+		var ejs_MotorQET;
+        
+		// Variables 
+		var speed;
+        var voltage;
+		var current;
+		var position;
+		
+		var rlab_vars = null;
+			
+		function onRLABStartExperiment(experiment_vars,experiment_params){
+			// Nothing to do for now !!!
+		}
+		
+		function onRLABStopExperiment(experiment_vars,experiment_params){
+			// Nothing to do for now !!!
+		}
+	
+		<!-- function callback called when receive data -->
+		function onRLABReceiveData(vars){
+			// Expected an array of vars !!!
+			if (vars!=null && vars.length>0){
+				
+				// Copy array on rlab_vars variables
+				// Sure you need after
+				rlab_vars = vars;
+				// Analyze data and use it !!!
+				if (vars != null){
+					updateEJSView = false;
+					for (i=0; i<vars.length; i++){
+						if (vars[i].name == "speed"){
+							v = parseFloat(vars[i].value);
+							// Udpate value
+							speed = v;
+							updateEJSView = true;
+						} else if (vars[i].name == "current"){
+							v = parseFloat(vars[i].value);
+							current = v;
+							updateEJSView = true;
+						} else if (vars[i].name == "position"){
+							v = parseFloat(vars[i].value);
+							position = v;
+							updateEJSView = true;
+						//} else if (vars[i].name == "voltage"){
+						} else if (vars[i].name == "command"){	
+							v = parseFloat(vars[i].value);
+							if (typeof v === "number" && !isNaN(v)){
+								voltage = v;
+								updateEJSView = true;
+							}
+						}
+					}
+					if (updateEJSView){
+						changeEJSValues();
+						updateEJSView = false;
+					}
+				}
+			}
+		}
+		
+		<!-- send data to experiment -->
+		function sendData(rlab_vars){
+			parent.sendDataToExperiment(rlab_vars);
+		}
+		
+		function changeEJSValues(){
+			if (typeof voltage != "undefined"){
+				ejs_MotorQET.setValue("voltage",voltage);
+			}
+			if (typeof current != "undefined"){
+				ejs_MotorQET.setValue("current",current);
+			}
+			if (typeof speed != "undefined"){
+				ejs_MotorQET.setValue("speed",speed)
+			}
+			if (typeof position != "undefined"){
+				ejs_MotorQET.setValue("angle",position);
+			}
+			ejs_MotorQET.update();
+		}
+		
+		$(document).ready(function(e) {		
+			// Create EJS widget !!!
+			ejs_MotorQET = new motorQET("_topFrame");
+			// Pause
+			ejs_MotorQET.pause();
+			// Update view
+			ejs_MotorQET.step();
+			
+			// Disable north panel
+			$('#voltagePanel').fadeTo('slow',.4);
+			$('#voltagePanel').append('<div style="position: absolute;top:0;left:0;width: 100%;height:100%;z-index:2;opacity:0.4;filter: alpha(opacity = 50)"></div>');
+        }); <!-- end document ready -->
+
+    </script>
+	
+
+  </body>
+</html>

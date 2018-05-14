@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" type="text/css" href="windturbine_controlpanel.css"/>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <!--ScriptSharp library-->
+    <script src="mscorlib.js" type="text/javascript"></script>
+    <!--Perfectwidgets library-->
+    <script src="PerfectWidgets.js" type="text/javascript"></script>
+    <script src="steelseries-min.js" type="text/javascript"></script>
+	<script src="tween-min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+        var joules_widget;
+		
+		var rlab_vars = null;
+			
+		<!-- function callback called when receive data -->
+		function onRLABReceiveData(vars){
+			// Expected an array of vars !!!
+			if (vars!=null && vars.length>0){
+				
+				// Copy array on rlab_vars variables
+				// Sure you need after
+				rlab_vars = vars;
+				// Analyze data and use it !!!
+				if (vars != null){
+					for (i=0; i<vars.length; i++){
+						if (vars[i].name == "Joules"){
+							v = parseFloat(vars[i].value);
+							joules_widget.setValue(v);
+						}
+					}
+				}
+			}
+		}
+		
+		<!-- send data to experiment -->
+		function sendData(rlab_vars){
+			parent.sendDataToExperiment(rlab_vars);
+		}
+		
+		$(document).ready(function(e) {		
+			
+			joules_widget = new steelseries.DisplaySingle('canvas_joules', {
+                            width: 250,
+                            height: 50,
+                            unitString: "J",
+                            unitStringVisible: true,
+                            headerString: "Joules",
+                            headerStringVisible: true
+                            });
+        }); <!-- end document ready -->
+
+    </script>
+</head>
+<body>
+	<!--widget will be in the div below-->
+	<div id="control_panel">
+       <div id="instruments_panel">
+        	<div class="instrument_panel_no_inline">
+            	Joules
+            </div>
+        	<div id="joules_panel">
+               	<canvas id="canvas_joules"></canvas>
+            </div>
+            <br/>
+        </div>
+	</div>
+	
+</body>
+</html>

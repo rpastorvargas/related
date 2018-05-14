@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Tank WebView</title>
+
+<link rel="stylesheet" href="jqx.base.css" type="text/css"/>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+<!-- widgets libraries -->
+<script src="tween-min.js" type="text/javascript"></script>
+<script src="steelseries-min.js" type="text/javascript"></script>
+<script type="text/javascript" src="jqxcore.js"></script>
+<script type="text/javascript" src="jqxdata.js"></script>
+<script type="text/javascript" src="jqxchart.js"></script>
+<script type="text/javascript" src="jqxgauge.js"></script>
+<script type="text/javascript" src="jqxbuttons.js"></script>
+<script type="text/javascript" src="jqxslider.js"></script>
+    
+</head>
+
+<body>
+    
+    <div style="margin-left:auto; margin-right:auto;text-align:center">
+        <div id="tank_widget" style="display:inline-block;width=225px; height:200px;">
+            <canvas id='tank_canvas'>
+                No canvas in your browser...sorry...
+            </canvas>
+        </div>
+        <div style="display:inline-block; margin-left:10px;">
+        	<div id="ref_div">
+            	<div id='ref_slider'>
+        		</div>
+            	Level reference: <span id="ref_value">0.5</span>
+            </div>
+            <div id="pump_widget" style="vertical-align:text-top; margin-bottom:20px;">
+            </div>
+        	<div id='slider'>
+        	</div>
+            <div class="bg-primary">Pump value: 
+            	<span id="pump_value">50</span>
+        	</div>
+        </div>
+    </div>
+    
+    <script>
+		
+		// Store the vars !!!
+		var rlab_vars;
+		
+		var editing_pump_value = false;
+		var editing_yref_value = false;
+		
+		var tank_widget;
+		var pump_widget;
+		
+		$(document).ready(function(e) {
+			
+			// Create the tank widget
+			tank_widget = new steelseries.Linear('tank_canvas', {
+							width: 225,
+                            titleString: 'Tank',
+                            unitString: 'mm',
+                            lcdVisible: true,
+							maxValue: 100,
+							minValue: 0,
+							lcdColor: steelseries.LcdColor.BLUE2,
+							valueColor: steelseries.ColorDef.BLUE
+                            });
+			tank_widget.setValue(40.0);
+			
+			$('#pump_widget').jqxGauge({
+				width: 150,
+				height: 150,
+				min: 0,
+				max: 100,
+				value: 0,
+				startAngle: 10,
+				endAngle: 340,
+                ranges: [{ startValue: 0, endValue: 10, style: { fill: '#4cb848', stroke: '#4cb848' }, startDistance: 0, endDistance: 0 },
+                         { startValue: 10, endValue: 90, style: { fill: '#fad00b', stroke: '#fad00b' }, startDistance: 0, endDistance: 0 },
+                         { startValue: 90, endValue: 100, style: { fill: '#e53d37', stroke: '#e53d37' }, startDistance: 0, endDistance: 0}],
+                cap: { size: '15%', style: { fill: '#2e79bb', stroke: '#2e79bb'} },
+                border: { size: '8%', style: { fill: '#8e9495', stroke: '#7b8384', 'stroke-width': 1 } },
+                ticksMinor: { interval: 5, size: '3%' },
+                ticksMajor: { interval: 20, size: '10%' },       
+                labels: { position: 'inside', interval: 25 },
+                pointer: { style: { fill: '#2e79bb' }, width: 2 },
+                animationDuration: 200
+            });
+            $('#slider').jqxSlider({ 
+				min: 0, 
+				max: 100, 
+				mode: 'fixed', 
+				step: 1,
+				ticksFrequency: 10, 
+				width: 150, 
+				value: 0,  
+				showButtons: false 
+			});
+			
+            $('#slider').mousedown(function () {
+                $('#pump_widget').jqxGauge('value', $('#slider').jqxSlider('value'));
+            });
+			/*$('#slider').mousemove(function () {
+                $('#pump_widget').jqxGauge('value', $('#slider').jqxSlider('value'));
+				$('#pump_value').text($('#slider').jqxSlider('value'));
+            });*/
+			
+			$('#slider').on('slideStart', function (event) { 
+				editing_pump_value = true; 
+			});
+			
+            $('#slider').on('slideEnd', function (e) {
+                $('#pump_widget').jqxGauge('value', e.args.value);
+				// set the value on legend
+				$('#pump_value').text(e.args.value);
+				
+				// Send the data to the experiment
+				if (rlab_vars != null){
+					pump = dataFindByProperty(rlab_vars,"name","pump");
+					if (pump!=null){
+						pump.value = $('#slider').jqxSlider('value');	
+						sendData([pump]);
+					}	
+				}
+				editing_pump_value = false; 
+            });
+            $('#slider').on('mousewheel', function () {
+                $('#pump_widget').jqxGauge('value', $('#slider').jqxSlider('value'));
+				$('#pump_value').text($('#slider').jqxSlider('value'));
+            });
+			
+			$('#ref_slider').jqxSlider({ 
+				min: 0, 
+				max: 0.9, 
+				mode: 'fixed', 
+				step: 0.05,
+				ticksFrequency: 10, 
+				width: 150, 
+				value: 0,  
+				showButtons: false 
+			});
+			
+			$('#ref_slider').mousedown(function () {
+                // Change the value !!!
+				// Send the data to the experiment
+				if (rlab_vars != null){
+					yref = dataFindByProperty(rlab_vars,"name","yref");
+					if (yref!=null){
+						yref.value = ($('#ref_slider').jqxSlider('value')).toFixed(2);	
+						sendData([yref]);
+					}	
+				}
+            });
+			
+			$('#ref_slider').on('slideStart', function (event) { 
+				editing_yref_value = true; 
+			});
+			
+            $('#ref_slider').on('slideEnd', function (e) {
+                // $('#pump_widget').jqxGauge('value', e.args.value);
+				// set the value on legend
+				//$('#pump_value').text(e.args.value);
+				
+				// Send the data to the experiment
+				if (rlab_vars != null){
+					yref = dataFindByProperty(rlab_vars,"name","yref");
+					if (yref!=null){
+						yref.value = ($('#ref_slider').jqxSlider('value')).toFixed(2);	
+						sendData([yref]);
+					}	
+				}
+				editing_yref_value = false; 
+            });
+			
+			// Set initial value
+            $('#pump_widget').jqxGauge('value', 0);
+			
+			// Hide the reference value
+			$('#ref_div').hide();
+			
+		});
+		
+		
+		<!-- ***************************************************************** -->
+		 <!--  RELATED CALLBACK/EVENTS FUNCTIONS 												-->
+		 <!--  																	-->
+		 <!-- ***************************************************************** -->
+		 
+		<!-- Calback used by RELATeD to pass data to this view -->
+		function onRLABReceiveData(vars){
+			//console.log(vars);
+			// Expected an array of vars !!!
+			if (vars!=null && vars.length>0){
+				// Save the last data
+				rlab_vars = vars;
+				
+				level = dataFindByProperty(vars,"name","level");
+				if (level!=null){
+					tank_widget.setValue(level.value*100);	
+				}
+				pump = dataFindByProperty(vars,"name","pump");
+				if (pump!=null){
+					if (!editing_pump_value){
+						// Compare values
+						v = $('#slider').jqxSlider('value');
+						if (v!=pump.value){
+							var p = parseFloat(pump.value);
+							$('#pump_widget').jqxGauge('value', p);
+							//console.log('updated widget: ' + p);
+							$('#slider').jqxSlider({ value: p }); 
+							$('#pump_value').text(p.toFixed(2));
+						}
+					}
+				}
+				yref = dataFindByProperty(vars,"name","yref");
+				if (yref!=null){
+					// Update
+					$('#ref_value').text(yref.value);
+				} 
+			}
+		}
+		
+		<!-- send data to experiment -->
+		<!-- USe is you need to send information from view to the experiment -->
+		function sendData(rlab_vars){
+			try {
+				parent.sendDataToExperiment(rlab_vars);
+			} catch(error){
+				console.log("Error invoking parent.sendData(): " + error.message);
+			}
+		}
+		
+		// Function event called from RELATED
+		// Use if you need to init any widget data from variables or params
+		function onRLABStartExperiment(vars,params){
+			// Set the initial value of pump
+			level = dataFindByProperty(vars,"name","level");
+			if (level!=null){
+				tank_widget.setValue(level.value*100);	
+			}
+			
+			pump = dataFindByProperty(vars,"name","pump");
+			if (pump!=null){
+				var p = parseFloat(pump.value);
+				$('#pump_widget').jqxGauge('value', p);
+				$('#slider').jqxSlider({ value: p }); 
+				$('#pump_value').text(p.toFixed(2));	
+			}
+			// If ref exists then show the label
+			yref = dataFindByProperty(vars,"name","yref");
+			if (yref!=null){
+				var r = parseFloat(yref.value);
+				$('#ref_div').show();
+				$('#ref_value').text(r.toFixed(2));
+				$('#ref_slider').jqxSlider({ value: r });
+				$('#slider').hide();
+			}
+			
+			rlab_vars = vars;
+		}
+	
+		// Function event called from RELATED
+		// Use if you need to make any stop operations with the widget (related to the data from variables or params, for example)
+		function onRLABStopExperiment(vars,params){
+			// Nothing to do
+		}
+		
+		// Auxiliar function to find values inside of vars/params values
+		// For example, you cand find the value of a var, usaing the 'name' property
+		function dataFindByProperty(array_vars_or_params, property, value_to_find) {
+    		for (var i = 0; i < array_vars_or_params.length; i++) {
+        		if (array_vars_or_params[i][property] === value_to_find) {
+            		return array_vars_or_params[i];
+        		}
+    		}
+    		return null;
+		}
+		
+    </script>
+</body>
+</html>

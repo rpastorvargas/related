@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="Rafael Pastor Vargas: Signal Generator Lab" type="0" description="Signal generator for SINE, SQUARE and TRIANGLE modes">
+   
+   <module name="SG MODULE">Signal generator module for SINE, SQUARE and TRIANGLE modes
+		<param name="SampleTime" type="double" value="0.01"> Sample time for signal generator thread</param>      
+		<var name="amplitude" type="double" initial="1" max="5" min="0" units="N/A">Signal amplitude</var>
+      	<var name="frequency" type="double" initial="1" max="1" min="0" units="Hz">Signal frequency (Hz)</var>        	
+      	<var name="wave" type="string" initial="SINE" max="1" min="0" units="N/A">Signal type</var>
+      	<var name="output" type="double" initial="0" max="10" min="-10" units="N/A">Generator Signal output</var>
+      	<var name="time" type="double" initial="0" max="10" min="0" units="Seconds">Generator Signal generated time</var>
+		<implementation type="JAVA" jarfile="../examples/signal_generator/code/RLABSignalGeneratorModule.jar" 
+		                helperUrls="../examples/signal_generator/code/SignalModel.jar" 
+						classname="es.uned.scc.grados.appdist.related.modules.SignalGeneratorModule">Module for generation signal
+						</implementation>
+   </module>
+   
+   <module name="RMI SG MODULE">Signal generator module (RMI client) for SINE, SQUARE and TRIANGLE modes
+		<var name="amplitude" type="double" initial="1" max="5" min="0" units="N/A">Signal amplitude</var>
+      	<var name="frequency" type="double" initial="1" max="1" min="0" units="Hz">Signal frequency (Hz)</var>        	
+      	<var name="wave" type="string" initial="SINE" max="1" min="0" units="N/A">Signal type</var>
+      	<var name="output" type="double" initial="0" max="10" min="-10" units="N/A">Generator Signal output</var>
+      	<var name="time" type="double" initial="0" max="10" min="0" units="Seconds">Generator Signal generated time</var>
+		<implementation type="JAVA" jarfile="../examples/signal_generator/code/RLABSignalGeneratorModule.jar" 
+		                helperUrls="../examples/signal_generator/code/RmiGenerator.jar,../examples/signal_generator/code/SignalPlot.jar" 
+						classname="es.uned.scc.grados.appdist.related.modules.RMISignalGeneratorModule">Module (RMI Client) for generation signal
+						</implementation>
+   </module>
+   
+   <module name="SOAP SG MODULE">Signal generator module (SOAP client) for SINE, SQUARE and TRIANGLE modes
+		<var name="amplitude" type="double" initial="1" max="5" min="0" units="N/A">Signal amplitude</var>
+      	<var name="frequency" type="double" initial="1" max="1" min="0" units="Hz">Signal frequency (Hz)</var>        	
+      	<var name="wave" type="string" initial="SINE" max="1" min="0" units="N/A">Signal type</var>
+      	<var name="output" type="double" initial="0" max="10" min="-10" units="N/A">Generator Signal output</var>
+      	<var name="time" type="double" initial="0" max="10" min="0" units="Seconds">Generator Signal generated time</var>
+		<implementation type="JAVA" jarfile="../examples/signal_generator/code/RLABSignalGeneratorModule.jar" 
+		                helperUrls="../examples/signal_generator/code/WS_SOAP_Client.jar,../examples/signal_generator/code/javax.wsdl_1.6.2.v201012040545.jar" 
+						classname="es.uned.scc.grados.appdist.related.modules.SOAPSignalGeneratorModule">Module (SOAP Client) for generation signal
+						</implementation>
+   </module>
+   
+   <module name="REST SG MODULE">Signal generator module (REST client) for SINE, SQUARE and TRIANGLE modes
+		<var name="amplitude" type="double" initial="1" max="5" min="0" units="N/A">Signal amplitude</var>
+      	<var name="frequency" type="double" initial="1" max="1" min="0" units="Hz">Signal frequency (Hz)</var>        	
+      	<var name="wave" type="string" initial="SINE" max="1" min="0" units="N/A">Signal type</var>
+      	<var name="output" type="double" initial="0" max="10" min="-10" units="N/A">Generator Signal output</var>
+      	<var name="time" type="double" initial="0" max="10" min="0" units="Seconds">Generator Signal generated time</var>
+		<implementation type="JAVA" jarfile="../examples/signal_generator/code/RLABSignalGeneratorModule.jar" 
+		                helperUrls="../examples/signal_generator/code/WS_REST_Client.jar" 
+						classname="es.uned.scc.grados.appdist.related.modules.RESTSignalGeneratorModule">Module (REST Client) for generation signal
+						</implementation>
+   </module>
+   
+   <experiment name="Generate signals" sampleTime="100" logging="yes" slotTime="5" concurrentUsers="1">Test the wave generation  
+      <duration type="User" />      
+      <run module="SG MODULE">
+         <interactives names="amplitude,frequency,wave" show="true,true,true"/>
+	 	 <paint names="output" colors="black"/>
+      </run>  
+    </experiment>
+	
+	<experiment name="RMI Generate signals" sampleTime="100" logging="yes" slotTime="5" concurrentUsers="1">Test the wave generation using the RMI client 
+      <duration type="User" />      
+      <run module="RMI SG MODULE">
+         <interactives names="amplitude,frequency,wave" show="true,true,true"/>
+	 	 <paint names="output" colors="black"/>
+      </run>  
+    </experiment>
+	
+	<experiment name="SOAP Generate signals" sampleTime="100" logging="yes" slotTime="5" concurrentUsers="1">Test the wave generation using the SOAP client
+      <duration type="User" />      
+      <run module="SOAP SG MODULE">
+         <interactives names="amplitude,frequency,wave" show="true,true,true"/>
+	 	 <paint names="output" colors="black"/>
+      </run>  
+    </experiment>
+	
+	<experiment name="REST Generate signals" sampleTime="100" logging="yes" slotTime="5" concurrentUsers="1">Test the wave generation using the REST client
+      <duration type="User" />      
+      <run module="REST SG MODULE">
+         <interactives names="amplitude,frequency,wave" show="true,true,true"/>
+	 	 <paint names="output" colors="black"/>
+      </run>  
+    </experiment>
+	<manager name="rpastor"/>
+</system>

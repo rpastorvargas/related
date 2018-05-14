@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="stylesheet" type="text/css" href="windturbine_controlpanel.css"/>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <!--ScriptSharp library-->
+    <script src="mscorlib.js" type="text/javascript"></script>
+    <!--Perfectwidgets library-->
+    <script src="PerfectWidgets.js" type="text/javascript"></script>
+    <script src="steelseries-min.js" type="text/javascript"></script>
+	<script src="tween-min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+        var watts_in_widget;
+		var watts_out_widget;
+		
+		var rlab_vars = null;	
+		
+		<!-- function callback called when receive data -->
+		function onRLABReceiveData(vars){
+			// Expected an array of vars !!!
+			if (vars!=null && vars.length>0){
+				
+				// Copy array on rlab_vars variables
+				// Sure you need after
+				rlab_vars = vars;
+				// Analyze data and use it !!!
+				if (vars != null){
+					for (i=0; i<vars.length; i++){
+						if (vars[i].name == "Watt Out"){
+							v = parseFloat(vars[i].value);
+							(watts_out_widget.getByName("Slider1")).setValue(v);
+						} else if (vars[i].name == "Watt In"){
+							v = parseFloat(vars[i].value);
+							(watts_in_widget.getByName("Slider1")).setValue(v);
+						}
+					}
+				}
+			}
+		}
+		
+		<!-- send data to experiment -->
+		function sendData(rlab_vars){
+			parent.sendDataToExperiment(rlab_vars);
+		}
+		
+		$(document).ready(function(e) {		
+			
+			// Do other initialization taks							
+			$.getJSON("AquaGauge.json",function(json_model){
+				var params = {
+					"keepRatio": true,
+					"interactive": false
+				}
+				watts_in_widget = new PerfectWidgets.Widget(
+						"watts_in_panel", json_model,params);
+				watts_out_widget = new PerfectWidgets.Widget(
+						"watts_out_panel", json_model,params);
+			})
+        }); <!-- end document ready -->
+
+    </script>
+</head>
+<body>
+	<!--widget will be in the div below-->   
+    <div id="control_panel" class="instrument_panel_no_inline border">
+    	<div>
+            Watts in
+        </div>
+        <div id="watts_in_panel" class="instrument center"></div>
+        <div>
+          	Watts out
+        </div>
+        <div id="watts_out_panel" class="instrument center"></div>
+     </div>
+	
+</body>
+</html>

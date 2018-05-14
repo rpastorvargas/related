@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<system name="Rafael Pastor Vargas: RANDOM_GENERATOR Lab-GUI" type="0" description="RLAB Sample with GUI added, produces random data for test">
+   <module name="GENERATOR MODULE">
+      <var name="max_value" type="double" initial="10" max="100" min="0" units="N/A">max random value</var>
+      <var name="min_value" type="double" initial="0" max="10" min="0" units="N/A">min random value</var>        	
+      <var name="value1" type="double" initial="0" max="100" min="0" units="N/A">random value 1</var>
+      <var name="value2" type="double" initial="0" max="100" min="0" units="N/A">random value 2</var>
+      <var name="value3" type="double" initial="0" max="100" min="0" units="N/A">random value 3</var>
+      <var name="value4" type="double" initial="0" max="100" min="0" units="N/A">random value 4</var>
+	  <var name="enteros" type="boolean" initial="false" max="true" min="false" units="N/A">Change to int values</var>
+	<implementation type="JAVA" jarfile="../examples/generador_aleatorio_gui/code/Modulo_Generador_NumerosAletorios.jar" 
+			classname="es.uned.scc.related.modules.ejemplo.Generador">Run a module for produces random data</implementation>
+   </module>
+   <view name="GENERATORVIEW" jarfile="../examples/generador_aleatorio_gui/code/SignalsGeneratorView.jar" 
+	      classname="es.uned.scc.rlab.views.signalgenerator.SignalsGeneratorView"
+	      helperUrls="../examples/generador_aleatorio_gui/code/SteelSeries-3.9.30.jar,../examples/generador_aleatorio_gui/code/trident-6.3.jar">Show image
+	      <use name="value1" module="GENERATOR MODULE" as="value1"/>
+	      <use name="value2" module="GENERATOR MODULE" as="value2"/>
+		  <use name="value3" module="GENERATOR MODULE" as="value3"/>
+		  <use name="value4" module="GENERATOR MODULE" as="value4"/>
+		  <use name="max_value" module="GENERATOR MODULE" as="max_value"/>
+		  <use name="min_value" module="GENERATOR MODULE" as="min_value"/>
+		  <use name="enteros" module="GENERATOR MODULE" as="enteros"/>
+    </view>
+   
+   <webview name="Web based info" 
+	         description="HTML5/CSS/Javascript interface" 
+	         html_dir="../examples/generador_aleatorio_gui/web/" 
+			 html_page="view.htm">
+	</webview>
+	
+   <experiment name="Test" sampleTime="1000" logging="yes" slotTime="5" concurrentUsers="1"
+   	  description="Test RELATED lab">
+      <duration type="User" />      
+      <run module="GENERATOR MODULE">
+         <interactives names="max_value,min_value,enteros" show="true,true,true"/>
+	 	 <paint names="value1,value2,value3,value4" colors="blue,red,yellow,pink"/>
+      </run>  
+	  <!-- Views for Java clients in the experiment-->
+	  <open view="GENERATORVIEW"/>
+	  <!-- Views for Web clients in the experiment-->
+	  <openweb view="Web based info"/>
+    </experiment>
+    <manager name="rpastor"/>
+</system>
